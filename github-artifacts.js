@@ -125,6 +125,10 @@ function artifact_url(artifact) {
   return artifact["url"];
 }
 
+function artifact_size(artifact) {
+  return artifact["size_in_bytes"];
+}
+
 /****************************************************************
  * Artifact comparison
  ****************************************************************/
@@ -227,28 +231,35 @@ function update_links(artifacts) {
   }
   artifacts = artifacts.filter(valid_artifact);
 
-  function update_link(id, runid) {
-    if (runid == null) {
+  function update_link(id, artifact) {
+    console.log(artifact);
+    if (artifact == null || artifact_runid(artifact) == null) {
       $(id).removeAttr("href");
       $(id).text("not available");
-    } else {
-      $(id).attr("href", run_url(runid));
+      return;
     }
+    console.log(artifact)
+    MB = Math.ceil( parseInt(artifact_size(artifact)) / (1024 * 2024) );
+
+    $(id).attr("href", run_url(artifact_runid(artifact)));
+    $(id).text(`CBMC ${artifact_version(artifact)}`);
+    $(id+"-text").text(`, size ${MB}Mb, commit ${artifact_sha(artifact)}`);
   }
 
-  ubuntu16 = runids_stable_and_latest(artifacts, "Ubuntu16");
+  ubuntu16 = artifacts_stable_and_latest(artifacts, "Ubuntu16");
+  console.log(ubuntu16);
   update_link("#ubuntu16-stable", ubuntu16[0]);
   update_link("#ubuntu16-latest", ubuntu16[1]);
 
-  ubuntu18 = runids_stable_and_latest(artifacts, "Ubuntu18");
+  ubuntu18 = artifacts_stable_and_latest(artifacts, "Ubuntu18");
   update_link("#ubuntu18-stable", ubuntu18[0]);
   update_link("#ubuntu18-latest", ubuntu18[1]);
 
-  windows = runids_stable_and_latest(artifacts, "VS2019");
+  windows = artifacts_stable_and_latest(artifacts, "VS2019");
   update_link("#windows-stable", windows[0]);
   update_link("#windows-latest", windows[1]);
 
-  macos = runids_stable_and_latest(artifacts, "MacOS");
+  macos = artifacts_stable_and_latest(artifacts, "MacOS");
   update_link("#macos-stable", macos[0]);
   update_link("#macos-latest", macos[1]);
 }
