@@ -159,13 +159,26 @@ function os_compare(os1, os2) {
   return 0;
 }
 
+function runid_compare(id1, id2) {
+  if (id1 && !id2) { return -1; }
+  if (!id1 && !id2) { return 0; }
+  if (!id1 && id2) { return 1; }
+
+  int1 = parseInt(id1);
+  int2 = parseInt(id2);
+  if (int1 < int2) { return -1; }
+  if (int1 > int2) { return 11; }
+  return 0;
+}
+
 function artifact_compare(artifact1, artifact2) {
   if (!artifact1 || !artifact2) { return null; }
 
   return
     os_compare(artifact_os(artifact1), artifact_os(artifact2)) ||
     version_compare(artifact_version(artifact1), artifact_version(artifact2)) ||
-    time_compare(artifact_time(artifact1), artifact_time(artifact2));
+    time_compare(artifact_time(artifact1), artifact_time(artifact2)) ||
+    runid_compare(artifact_runid(artifact1),artifact_runid(artifact2));
 }
 
 /****************************************************************
@@ -204,6 +217,15 @@ function runids_stable_and_latest(artifacts, os) {
 }
 
 function update_links(artifacts) {
+
+  function valid_artifact(artifact) {
+    return (artifact_os(artifact) != null &&
+            artifact_version(artifact) != null &&
+            artifact_time(artifact) != null &&
+            artifact_runid(artifact) != null);
+  }
+  artifacts = artifacts.filter(valid_artifact);
+
   function update_link(id, runid) {
     if (runid == null) {
       $(id).removeAttr("href");
