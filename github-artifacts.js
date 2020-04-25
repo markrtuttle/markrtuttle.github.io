@@ -209,6 +209,10 @@ function artifacts_stable_and_latest(artifacts, os) {
   version_artifacts = artifacts_filter_by_version(os_artifacts, version);
   stable = version_artifacts[0];
   latest = version_artifacts[version_artifacts.length - 1];
+
+  console.log("os", os);
+  console.log("artifacts", version_artifacts);
+
   return [stable, latest];
 }
 
