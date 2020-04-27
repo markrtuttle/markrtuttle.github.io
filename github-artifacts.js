@@ -175,14 +175,9 @@ function runid_compare(id1, id2) {
   return 0;
 }
 
-function artifact_compare(artifact1, artifact2) {
+function artifact_compare_by_time(artifact1, artifact2) {
   if (!artifact1 || !artifact2) { return null; }
-
-  return
-    os_compare(artifact_os(artifact1), artifact_os(artifact2)) ||
-    version_compare(artifact_version(artifact1), artifact_version(artifact2)) ||
-    time_compare(artifact_time(artifact1), artifact_time(artifact2)) ||
-    runid_compare(artifact_runid(artifact1),artifact_runid(artifact2));
+  return time_compare(artifact_time(artifact1), artifact_time(artifact2));
 }
 
 /****************************************************************
@@ -206,14 +201,14 @@ function artifacts_filter_by_version(artifacts, version) {
  ****************************************************************/
 
 function artifacts_stable_and_latest(artifacts, os) {
-  sorted_artifacts = artifacts.sort(artifact_compare);
-  os_artifacts = artifacts_filter_by_os(sorted_artifacts, os);
+  // TODO: handle indexing into zero-length lists
+  os_artifacts = artifacts_filter_by_os(artifacts, os);
   versions = os_artifacts.map(artifact_version);
   version = versions.sort(version_compare)[versions.length - 1];
   version_artifacts = artifacts_filter_by_version(os_artifacts, version);
-  stable = version_artifacts[0];
-  latest = version_artifacts[version_artifacts.length - 1];
-
+  time_artifacts = version_artifacts.sort(artifact_compare_by_time);
+  stable = time_artifacts[0];
+  latest = time_artifacts[time_artifacts.length - 1];
   return [stable, latest];
 }
 
@@ -232,13 +227,11 @@ function update_links(artifacts) {
   artifacts = artifacts.filter(valid_artifact);
 
   function update_link(id, artifact) {
-    console.log(artifact);
     if (artifact == null || artifact_runid(artifact) == null) {
       $(id).removeAttr("href");
       $(id).text("not available");
       return;
     }
-    console.log(artifact)
     MB = Math.ceil( parseInt(artifact_size(artifact)) / (1024 * 2024) );
 
     $(id).attr("href", run_url(artifact_runid(artifact)));
@@ -247,7 +240,6 @@ function update_links(artifacts) {
   }
 
   ubuntu16 = artifacts_stable_and_latest(artifacts, "Ubuntu16");
-  console.log(ubuntu16);
   update_link("#ubuntu16-stable", ubuntu16[0]);
   update_link("#ubuntu16-latest", ubuntu16[1]);
 
