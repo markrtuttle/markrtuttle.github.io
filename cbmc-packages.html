@@ -13,11 +13,11 @@
     <li>MacOS
       <ul>
         <li>
-          Stable version:
+          cbmc
           <a id="macos-stable" href=""></a><span id="macos-stable-text"></span>
         </li>
         <li>
-          Last commit:
+          cbmc-latest:
           <a id="macos-latest" href=""></a><span id="macos-latest-text"></span>
         </li>
       </ul>
@@ -26,11 +26,11 @@
     <li>Windows
       <ul>
         <li>
-          Stable version:
+          cbmc
           <a id="windows-stable" href=""></a><span id="windows-stable-text"></span>
         </li>
         <li>
-          Last commit:
+          cbmc-latest:
           <a id="windows-latest" href=""></a><span id="windows-latest-text"></span>
         </li>
       </ul>
@@ -39,11 +39,11 @@
     <li>Ubuntu16
       <ul>
         <li>
-          Stable version:
+          cbmc
           <a id="ubuntu16-stable" href=""></a><span id="ubuntu16-stable-text"></span>
         </li>
         <li>
-          Last commit:
+          cbmc-latest:
           <a id="ubuntu16-latest" href=""></a><span id="ubuntu16-latest-text"></span>
         </li>
       </ul>
@@ -52,16 +52,43 @@
     <li>Ubuntu18
       <ul>
         <li>
-          Stable version:
+          cbmc
           <a id="ubuntu18-stable" href=""></a><span id="ubuntu18-stable-text"></span>
         </li>
         <li>
-          Last commit:
+          cbmc-latest:
           <a id="ubuntu18-latest" href=""></a><span id="ubuntu18-latest-text"></span>
         </li>
       </ul>
     </li>
   </ul>
+
+  <p>
+    There are packages to install the latest stable release of CBMC
+    on most operating systems.
+    Instructions for installing these packages are given below.
+    They install CBMC into the operating system's equivalent of
+    /usr/local/bin.
+  </p>
+
+  <p>
+    The packages on this page install the latest releases of CBMC
+    (which are more recent that the latest stable releases).  In the GitHub
+    repository, these are the latest commits on the develop branch.
+    These packages come in two forms:
+    <ul>
+      <li>cbmc: This installs CBMC into the operating system's
+        equivalent of /usr/local/bin.  This installs on top of
+        any stable version already installed there.  When it is installed, you will
+        not need to modify your search path to run CBMC.</li>
+      <li>cbmc-latest: This installs CBMC into the operating system's
+        equivalent of /usr/local/cbmc-latest/bin.  This lets you keep a stable
+        version in /usr/local/bin and a latest version in /usr/local/cbmc-latest/bin. When it is
+        installed, however, you will need to add /usr/local/cbmc-latest/bin to
+        your search path to run CBMC.</li>
+    </ul>
+
+  </p>
 
   <h2>MacOS installation</h2>
 

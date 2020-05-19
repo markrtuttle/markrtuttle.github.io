@@ -26,17 +26,39 @@ function parse_os(str) {
   if (lc == "ubuntu16") { return "Ubuntu16"; }
   if (lc == "ubuntu18") { return "Ubuntu18"; }
   if (lc == "macos") { return "MacOS"; }
-  if (lc == "vs2019") { return "VS2019"; }
+  if (lc == "windows") { return "Windows"; }
 
   return null;
 }
 
-function parse_version(str) {
+function parse_osver(str) {
+  if (str == null) { return null; }
+
+  lc = str.toLowerCase();
+  if (lc == "xenial") { return "xenial"; }
+  if (lc == "bionic") { return "bionic"; }
+  if (lc == "catalina") { return "catalina"; }
+  if (lc == "vs2019") { return "vs2019"; }
+
+  return null;
+}
+
+function parse_pkg(str) {
+  if (str == null) { return null; }
+
+  lc = str.toLowerCase();
+  if (lc == "cbmc") { return "cbmc"; }
+  if (lc == "cbmc-latest") { return "cbmc-latest"; }
+
+  return null;
+}
+
+function parse_pkgver(str) {
   if (str == null) { return false; }
-  if (str.match(/^\d+(.\d+)*$/g) != null) {
+  if (str.match(/^\d+(.\d+)*-\d+$/g) != null) {
     return str
   }
-  return null;;
+  return null;
 }
 
 function parse_time(str) {
@@ -61,35 +83,32 @@ function parse_runid(str) {
   return null;
 }
 
-// Initial artifacts were inconsistently named.
-function patch_name(name){
-  name = name.replace("Ubuntu 16", "Ubuntu16");
-  name = name.replace("Ubuntu 18", "Ubuntu18");
-  name = name.replace("Windows VS2019", "VS2019");
-  return name;
-}
-
 function parse_name(name){
   if (name == null) {
-    return {"os": null, "version": null, "time": null, "sha": null};
+    return null;
   }
-
-  name = patch_name(name);
 
   parts = name.split(/\s+/);
-  os = parse_os(parts[0]);
-  version = parse_version(parts[1]);
-  time = parse_time(parts[2]);
-  sha = parse_sha(parts[3]);
-  runid = parse_runid(parts[4]);
+  console.log(parts);
 
-  if (os && version && time && sha) {
-    return {"os": os, "version": version, "time": time, "sha": sha,
-            "runid": runid};
+
+  // os pkg pkgver osver time sha
+
+  os = parse_os(parts[0]);
+  pkg = parse_pkg(parts[1]);
+  pkgver = parse_pkgver(parts[2]);
+  osver = parse_osver(parts[3]);
+  time = parse_time(parts[4]);
+  sha = parse_sha(parts[5]);
+  runid = parse_runid(parts[6]);
+
+  if (os && pkg && pkgver && osver && time && sha && runid) {
+    return {"os": os, "osver": osver,
+            "pkg": pkg, "pkgver": pkgver,
+            "time": time, "sha": sha, "runid": runid}
   }
 
-  return {"os": null, "version": null, "time": null, "sha": null,
-          "runid": null};
+  return null;
 }
 
 /****************************************************************
@@ -105,8 +124,16 @@ function artifact_os(artifact) {
   return artifact["parsed-name"]["os"];
 }
 
-function artifact_version(artifact) {
-  return artifact["parsed-name"]["version"];
+function artifact_osver(artifact) {
+  return artifact["parsed-name"]["osver"];
+}
+
+function artifact_pkg(artifact) {
+  return artifact["parsed-name"]["pkg"];
+}
+
+function artifact_pkgver(artifact) {
+  return artifact["parsed-name"]["pkgver"];
 }
 
 function artifact_time(artifact) {
@@ -133,10 +160,33 @@ function artifact_size(artifact) {
  * Artifact comparison
  ****************************************************************/
 
-function version_compare(version1, version2) {
-  function toNumbers(version) {
+function os_compare(os1, os2) {
+  if (os1 < os2) { return -1; }
+  if (os1 > os2) { return 1; }
+  return 0;
+}
+
+function osver_compare(osver1, osver2) {
+  if (osver1 < osver2) { return -1; }
+  if (osver1 > osver2) { return 1; }
+  return 0;
+}
+
+function pkg_compare(pkg1, pkg2) {
+  if (pkg1 < pkg2) { return -1; }
+  if (pkg1 > pkg2) { return 1; }
+  return 0;
+}
+
+function pkgver_compare(pkgver1, pkgver2) {
+  function toNumbers(pkgver) {
     function toInt(str) { return parseInt(str); }
-    return version.split(".").map(toInt).concat([0,0,0,0,0]).slice(0,5)
+
+    parts = pkgver.split("-").concat(["0","0"]).slice(0,2)
+    versions = parts[0].split(".").map(toInt).concat([0,0,0,0,0]).slice(0,5)
+    revision = parts[1].split(".").map(toInt).concat([0,0,0,0,0]).slice(0,1)
+
+    return versions.concat(revision)
   }
 
   function numbers_compare(nums1, nums2) {
@@ -148,7 +198,7 @@ function version_compare(version1, version2) {
     return numbers_compare(nums1.slice(1), nums2.slice(1));
   }
 
-  return numbers_compare(toNumbers(version1), toNumbers(version2));
+  return numbers_compare(toNumbers(pkgver1), toNumbers(pkgver2));
 }
 
 function time_compare(time1, time2) {
@@ -157,27 +207,9 @@ function time_compare(time1, time2) {
   return 0;
 }
 
-function os_compare(os1, os2) {
-  if (os1 < os2) { return -1; }
-  if (os1 > os2) { return 1; }
-  return 0;
-}
-
-function runid_compare(id1, id2) {
-  if (id1 && !id2) { return -1; }
-  if (!id1 && !id2) { return 0; }
-  if (!id1 && id2) { return 1; }
-
-  int1 = parseInt(id1);
-  int2 = parseInt(id2);
-  if (int1 < int2) { return -1; }
-  if (int1 > int2) { return 11; }
-  return 0;
-}
-
-function artifact_compare_by_time(artifact1, artifact2) {
-  if (!artifact1 || !artifact2) { return null; }
-  return time_compare(artifact_time(artifact1), artifact_time(artifact2));
+function artifact_pkgver_compare(artifact1, artifact2) {
+  return pkgver_compare(artifact_pkgver(artifact1),
+                        artifact_pkgver(artifact2));
 }
 
 /****************************************************************
@@ -190,9 +222,9 @@ function artifacts_filter_by_os(artifacts, os) {
   )
 }
 
-function artifacts_filter_by_version(artifacts, version) {
+function artifacts_filter_by_pkg(artifacts, pkg) {
   return artifacts.filter(
-    function(artifact) { return artifact_version(artifact) == version; }
+    function(artifact) { return artifact_pkg(artifact) == pkg; }
   )
 }
 
@@ -200,31 +232,25 @@ function artifacts_filter_by_version(artifacts, version) {
  * Stable and latest artifacts
  ****************************************************************/
 
-function artifacts_stable_and_latest(artifacts, os) {
+function artifacts_stable_and_latest(artifacts, os, pkg) {
   // TODO: handle indexing into zero-length lists
   os_artifacts = artifacts_filter_by_os(artifacts, os);
-  versions = os_artifacts.map(artifact_version);
-  version = versions.sort(version_compare)[versions.length - 1];
-  version_artifacts = artifacts_filter_by_version(os_artifacts, version);
-  time_artifacts = version_artifacts.sort(artifact_compare_by_time);
-  stable = time_artifacts[0];
-  latest = time_artifacts[time_artifacts.length - 1];
-  return [stable, latest];
-}
 
-function runids_stable_and_latest(artifacts, os) {
-  return artifacts_stable_and_latest(artifacts, os).map(artifact_runid);
+  stable_artifacts = artifacts_filter_by_pkg(os_artifacts, "cbmc").sort(artifact_pkgver_compare)
+  latest_artifacts = artifacts_filter_by_pkg(os_artifacts, "cbmc-latest").sort(artifact_pkgver_compare)
+
+  stable = stable_artifacts[stable_artifacts.length - 1];
+  latest = latest_artifacts[latest_artifacts.length - 1];
+  return [stable, latest];
 }
 
 function update_links(artifacts) {
 
   function valid_artifact(artifact) {
-    return (artifact_os(artifact) != null &&
-            artifact_version(artifact) != null &&
-            artifact_time(artifact) != null &&
-            artifact_runid(artifact) != null);
+    return artifact["parsed-name"] != null;
   }
   artifacts = artifacts.filter(valid_artifact);
+  console.log(artifacts);
 
   function update_link(id, artifact) {
     if (artifact == null || artifact_runid(artifact) == null) {
@@ -235,7 +261,7 @@ function update_links(artifacts) {
     MB = Math.ceil( parseInt(artifact_size(artifact)) / (1024 * 2024) );
 
     $(id).attr("href", run_url(artifact_runid(artifact)));
-    $(id).text(`CBMC ${artifact_version(artifact)}`);
+    $(id).text(`version ${artifact_pkgver(artifact)}`);
     $(id+"-text").text(`, size ${MB}Mb, commit ${artifact_sha(artifact)}`);
   }
 
@@ -247,7 +273,7 @@ function update_links(artifacts) {
   update_link("#ubuntu18-stable", ubuntu18[0]);
   update_link("#ubuntu18-latest", ubuntu18[1]);
 
-  windows = artifacts_stable_and_latest(artifacts, "VS2019");
+  windows = artifacts_stable_and_latest(artifacts, "Windows");
   update_link("#windows-stable", windows[0]);
   update_link("#windows-latest", windows[1]);
 
