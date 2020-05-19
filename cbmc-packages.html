@@ -93,7 +93,7 @@
   <h2>MacOS installation</h2>
 
   <p>
-    You can install the stable version on MacOS as a Homebrew package.
+    You can install the latest stable version on MacOS with Homebrew.
     Just type:
     <ul>
       <li>brew install cbmc</li>
@@ -101,49 +101,66 @@
   </p>
 
   <p>
-    You can install the stable and latest versions from this site as
-    follows:
+    You can install the latest version as follows:
     <ul>
-      <li>Download the desired link above to the file DOWNLOAD.zip</li>
-      <li>Unzip the download with "unzip DOWNLOAD.zip" to the file cbmc_VERSION_macos.tar.gz</li>
-      <li>Untar the file with "tar fx cbmc_VERSION_macos.tar" to the directory cbmc.</li>
-      <li>Add the directory cbmc to your PATH.</li>
+      <li>Click on the cbmc or cbmc-latest link for MacOS at the top of this page.
+          This will take you to a list of packages.
+          Click on "MacOS cbmc" or "MacOS cbmc-latest" to download the installation package.
+      <li>Double-click on the installation package to unzip it and untar it into a folder cbmc or cbmc-latest.</li>
+      <li>Add the folder cbmc or cbmc-latest to your PATH.</li>
     </ul>
   <p>
 
   <h2>Windows installation</h2>
 
   <p>
-    You can install the stable and latest versions from this site as
-    follows:
+    You can install the latest version as follows:
     <ul>
-      <li>Download the desired link above to the file DOWNLOAD.zip</li>
-      <li>Unzip the download with "unzip DOWNLOAD.zip" to the file cbmc_VERSION_macos.msi</li>
-      <li>Run the installer with "msiexec /i cbmc_VERSION_macos.msi"</li>
-      <li>Add "\Program Files\DiffBlue\CBMC V" to your path where V is
-        the version number like 5.12.
+      <li>Click on the cbmc or cbmc-latest link for Windows at the top of this page.
+          This will take you to a list of packages.
+          Click on "Windows cbmc" or "Windows cbmc-latest" to download the installation package.
+      <li>Click on the installation package once to unzip it and once to run the unzipped installer.
+        The installer is not signed, so Windows will ask you to confirm that you want to run the installer.
+        Accept the defaults and install a "typical" installation.
+      <li>The cbmc and cbmc-latest installers will put CBMC in "\Program Files\DiffBlue\CBMC" or
+        "\Program Files\DiffBlue\CBMC Latest".  Add the directory to your PATH environment variable.
       </li>
     </ul>
-  <p>
+
+  <p>You must have Visual Studio 2019 installed to run CBMC.
+    CBMC is installed as a native Windows application, but it needs
+  some VS2019 DLLs to run.  Installing the Community Edition of VS2019 is sufficient.</p>
 
   <h2>Ubuntu installation</h2>
 
   <p>
-    You can install the stable version of the older CBMC 5.10 on
-    Ubuntu as a Debian package.
-    Just type:
+    You can install a stable version on Ubuntu with a Debian package, although this may not install
+    the latest stable version. Just type:
     <ul>
       <li>sudo apt-get install cbmc</li>
     </ul>
   </p>
 
   <p>
-    You can install the stable and latest versions from this site as
-    follows:
+    You can install the latest stable version by adding a PPA to your list of repositories.  Just type:
     <ul>
-      <li>Download the desired link above to the file DOWNLOAD.zip.</li>
-      <li>Unzip the download with "unzip DOWNLOAD.zip" to the file cbmc_VERSION_amd64.deb.</li>
-      <li>Install the package with "dpkg -i cbmc_VERSION_amd64.deb".</li>
+      <li> sudo apt-get install software-properties-common </li>
+      <li> sudo add-apt-repository ppa:mt-debian/cbmc-backports </li>
+      <li> sudo apt-get update </li>
+      <li> sudo apt-get install cbmc </li>
+    </ul>
+
+  <p>
+    You can install the latest version as follows:
+    <ul>
+      <li>Click on the cbmc or cbmc-latest link for Ubuntu at the top of this page.
+          This will take you to a list of packages.
+        Click on "Ubuntu18 cbmc" or "Ubuntu18 cbmc-latest" to download the installation package for Ubuntu18
+        (and do the same for Ubuntu16).</li>
+      <li>Unzip the package with "unzip Ubuntu*.zip"</li>
+      <li>Install the package with "dpkg -i cbmc*.deb"</li>
+      <li>The cbmc package will install into /usr/bin that is already in your PATH.  The cbmc-latest
+        package will install into /usr/local/cbmc-latest/bin, and you will have to hadd that to your PATH.
     </ul>
   </p>
 
